@@ -5,17 +5,6 @@
 set -e
 set -x
 
-#cat >secret.yaml <<EOF
-#apiVersion: v1
-#kind: Secret
-#metadata:
-#  name: crossplane-aws-credentials
-#  namespace: crossplane-system
-#type: Opaque
-#data:
-#  credentials: <crossplane_user_credentials_base64_encoded>
-#EOF
-
 cat >provider.yaml <<'EOF'
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
@@ -49,6 +38,42 @@ spec:
       key: credentials
 EOF
 
+cat >subnet.yaml <<'EOF'
+apiVersion: ec2.aws.crossplane.io/v1beta1
+kind: Subnet
+metadata:
+  name: sandbox-subnet
+  labels:
+    name: sandbox-subnet
+spec:
+  forProvider:
+    region: eu-west-3
+    availabilityZone: eu-west-3a
+    vpcIdSelector:
+      matchLabels:
+        name: sandbox-vpc
+    cidrBlock: 10.10.0.0/24
+  providerConfigRef:
+    name: aws-provider-config
+EOF
+
+cat >vpc.yaml <<'EOF'
+apiVersion: ec2.aws.crossplane.io/v1beta1
+kind: VPC
+metadata:
+  name: sandbox-vpc
+  labels:
+    name: sandbox-vpc
+spec:
+  forProvider:
+    region: eu-west-3
+    cidrBlock: 10.10.0.0/16
+    enableDnsSupport: true
+    enableDnsHostNames: true
+  providerConfigRef:
+    name: aws-provider-config
+EOF
+
 kind create cluster --wait 2m
 
 kubectl create namespace crossplane-system
@@ -62,14 +87,14 @@ kubectl get all --namespace crossplane-system
 
 AWS_PROFILE=default && echo -e "[default]\naws_access_key_id = $(aws configure get aws_access_key_id --profile $AWS_PROFILE)\naws_secret_access_key = $(aws configure get aws_secret_access_key --profile $AWS_PROFILE)" >/tmp/creds.conf
 kubectl create secret generic crossplane-aws-credentials --namespace crossplane-system --from-file=credentials=/tmp/creds.conf
-# rm -f /tmp/creds.conf
+rm -f /tmp/creds.conf
 
 kubectl apply --wait -f provider.yaml
-kubectl wait Provider provider-aws --for condition=healthy
-kubectl get Provider
+kubectl wait Provider provider-aws --for condition=healthy --timeout=2m
+kubectl --namespace crossplane-system describe provider
 kubectl apply -f providerconfig.yaml
 kubectl apply -f vpc.yaml
+kubectl apply -f subnet.yaml
 
-# kubectl get pod --namespace crossplane-system
-# kubectl --namespace crossplane-system describe provider
 kubectl --namespace crossplane-system describe vpc
+kubectl --namespace crossplane-system describe subnet
