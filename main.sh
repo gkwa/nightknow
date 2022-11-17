@@ -22,7 +22,17 @@ kind: Provider
 metadata:
   name: provider-aws
 spec:
-  package: crossplane/provider-aws:v0.28.0
+  package: crossplane/provider-aws:v0.32.0
+EOF
+
+cat >providerconfig.yaml <<'EOF'
+apiVersion: aws.crossplane.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: aws-provider-config
+spec:
+  credentials:
+    source: InjectedIdentity
 EOF
 
 cat >providerconfig.yaml <<'EOF'
@@ -51,7 +61,7 @@ helm list --namespace crossplane-system
 kubectl get all --namespace crossplane-system
 
 AWS_PROFILE=default && echo -e "[default]\naws_access_key_id = $(aws configure get aws_access_key_id --profile $AWS_PROFILE)\naws_secret_access_key = $(aws configure get aws_secret_access_key --profile $AWS_PROFILE)" >/tmp/creds.conf
-kubectl create secret generic crossplane-aws-credentials --namespace crossplane-system --from-file=creds=/tmp/creds.conf
+kubectl create secret generic crossplane-aws-credentials --namespace crossplane-system --from-file=credentials=/tmp/creds.conf
 # rm -f /tmp/creds.conf
 
 kubectl apply --wait -f provider.yaml
