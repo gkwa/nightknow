@@ -21,16 +21,6 @@ metadata:
   name: aws-provider-config
 spec:
   credentials:
-    source: InjectedIdentity
-EOF
-
-cat >providerconfig.yaml <<'EOF'
-apiVersion: aws.crossplane.io/v1beta1
-kind: ProviderConfig
-metadata:
-  name: aws-provider-config
-spec:
-  credentials:
     source: Secret
     secretRef:
       namespace: crossplane-system
