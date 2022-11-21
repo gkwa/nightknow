@@ -88,3 +88,5 @@ kubectl apply -f subnet.yaml
 
 kubectl --namespace crossplane-system describe vpc
 kubectl --namespace crossplane-system describe subnet
+
+echo 'https://eu-west-3.console.aws.amazon.com/vpc/home?region=eu-west-3#vpcs:'
