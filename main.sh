@@ -82,9 +82,7 @@ rm -f /tmp/creds.conf
 kubectl apply --wait -f provider.yaml
 kubectl wait Provider provider-aws --for condition=healthy --timeout=2m
 kubectl --namespace crossplane-system describe provider
-kubectl apply -f providerconfig.yaml
-kubectl apply -f vpc.yaml
-kubectl apply -f subnet.yaml
+kubectl apply -f providerconfig.yaml -f vpc.yaml -f subnet.yaml
 
 kubectl --namespace crossplane-system describe vpc
 kubectl --namespace crossplane-system describe subnet
