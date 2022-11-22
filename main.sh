@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # https://www.padok.fr/en/blog/kubernetes-infrastructure-crossplane
 
@@ -64,7 +64,7 @@ spec:
     name: aws-provider-config
 EOF
 
-kind create cluster --wait 2m
+kind create cluster --wait 2m --name nightknow
 
 kubectl create namespace crossplane-system
 helm repo add crossplane-stable https://charts.crossplane.io/stable
@@ -80,9 +80,16 @@ kubectl create secret generic crossplane-aws-credentials --namespace crossplane-
 rm -f /tmp/creds.conf
 
 kubectl apply --wait -f provider.yaml
-kubectl wait Provider provider-aws --for condition=healthy --timeout=2m
+kubectl wait --timeout=2m --for condition=healthy Provider provider-aws
 kubectl --namespace crossplane-system describe provider
 kubectl apply -f providerconfig.yaml -f vpc.yaml -f subnet.yaml
+
+kubectl wait --timeout=2m --for=condition=ready --namespace crossplane-system vpc sandbox-vpc
+kubectl wait --timeout=2m --for=condition=ready --namespace crossplane-system subnet sandbox-subnet
+
+kubectl get --namespace crossplane-system providers.pkg.crossplane.io
+kubectl get --namespace crossplane-system vpc
+kubectl get --namespace crossplane-system subnet
 
 kubectl --namespace crossplane-system describe vpc
 kubectl --namespace crossplane-system describe subnet
