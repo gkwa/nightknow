@@ -5,7 +5,7 @@
 set -e
 set -x
 
-cat >provider.yaml <<'EOF'
+cat >provider.yaml <<EOF
 apiVersion: pkg.crossplane.io/v1
 kind: Provider
 metadata:
@@ -14,7 +14,7 @@ spec:
   package: crossplane/provider-aws:v0.32.0
 EOF
 
-cat >providerconfig.yaml <<'EOF'
+cat >providerconfig.yaml <<EOF
 apiVersion: aws.crossplane.io/v1beta1
 kind: ProviderConfig
 metadata:
@@ -28,7 +28,7 @@ spec:
       key: credentials
 EOF
 
-cat >subnet.yaml <<'EOF'
+cat >subnet.yaml <<EOF
 apiVersion: ec2.aws.crossplane.io/v1beta1
 kind: Subnet
 metadata:
@@ -47,7 +47,7 @@ spec:
     name: aws-provider-config
 EOF
 
-cat >vpc.yaml <<'EOF'
+cat >vpc.yaml <<EOF
 apiVersion: ec2.aws.crossplane.io/v1beta1
 kind: VPC
 metadata:
