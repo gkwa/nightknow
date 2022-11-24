@@ -181,4 +181,6 @@ kubectl get --namespace crossplane-system subnet
 kubectl --namespace crossplane-system describe vpc
 kubectl --namespace crossplane-system describe subnet
 
+kubectl get pkgrev,managed
+
 echo 'https://eu-west-3.console.aws.amazon.com/vpc/home?region=eu-west-3#vpcs:'
